@@ -1,0 +1,608 @@
+<!DOCTYPE html lang="en">
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="MaskGaussian: Adaptive 3D Gaussian Representation from Probabilistic Masks">
+  <meta name="keywords" content="MaskGaussian, Gaussian, 3DGS, 3dgs, splatting, mask">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MaskGaussian: Adaptive 3D Gaussian Representation from Probabilistic Masks</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="./static/css/bootstrap-4.4.1.css">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/icon.png">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  
+  <link rel="stylesheet" href="./static/css/dics.original.css">
+  <script src="./static/js/event_handler.js"></script>
+  <script src="./static/js/dics.original.js"></script>
+  <script src="./static/js/video-comparison.js"></script>
+
+  <style>
+        .container {
+            width: 80%; /* 或者根据需要设置为其他宽度 */
+            margin: auto; /* 居中显示 */
+        }
+
+        .responsive-video {
+            width: 45%; /* 视频宽度为容器的 100% */
+            height: auto; /* 高度自动调整以保持宽高比 */
+        }
+    </style>
+
+    <style>
+        .fixed-size-video {
+            width: 940px; /* 设置视频的固定宽度 */
+            height: auto; /* 设置视频的固定高度 */
+        }
+    </style>
+
+    <style>
+        .fixed-size-video-small {
+            width: 700px; /* 设置视频的固定宽度 */
+            height: auto; /* 设置视频的固定高度 */
+        }
+        .rounded-corners {
+    border-radius: 10px; /* 设置圆角的大小 */
+  }
+    </style>
+    <style>
+        .video-container {
+            height: 600px; /* 统一设置视频高度 */
+            width: auto;   /* 宽度自适应 */
+        }
+    </style>
+    <style>
+        .video-container {
+            display: flex;         /* 使用 flexbox 布局 */
+            justify-content: center; /* 水平居中 */
+        }
+        .video-container video {
+            width: 30%;           /* 每个视频宽度占容器的30% */
+            margin: 5px;          /* 视频之间的间隔 */
+        }
+    </style>
+
+<style>
+  .video-row {
+    display: flex;
+    justify-content: space-around; /* 可以改为 center 使得视频在行中居中 */
+    margin-bottom: 20px; /* 行与行之间的间距 */
+  }
+
+  .fixed-size-video-small {
+    width: 33%; /* 设置视频的固定宽度 */
+            height: auto; /* 设置视频的固定高度 */
+  }
+  .fixed-size-video-small-two {
+    width: 800px; /* 设置视频的固定宽度 */
+            height: auto; /* 设置视频的固定高度 */
+  }
+  .fixed-size-video-small-three {
+    width: 1340px; /* 设置视频的固定宽度 */
+            height: auto; /* 设置视频的固定高度 */
+  }
+  
+  /* 可能需要调整的样式 */
+  @media screen and (max-width: 768px) {
+    /* 在较小屏幕上，让视频堆叠而不是并排 */
+    .video-row {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<style>
+        .text-container {
+            max-width: 1070px; /* 限制文本容器的最大宽度 */
+            margin: 0 auto;    /* 居中文本容器 */
+            padding: 20px;     /* 为容器添加一些内边距 */
+        }
+        
+    </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">MaskGaussian: Adaptive 3D Gaussian Representation from Probabilistic Masks</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><a href="https://github.com/kaikai23">Yifei Liu</a><sup>1,2</sup>,</span>
+            <span class="author-block"><a href="https://zzh-tech.github.io">Zhihang Zhong</a><sup>1</sup>,</span>
+            <span class="author-block"><a href="https://github.com/Yifever20002">Yifan Zhan</a><sup>1,3</sup>,</span>
+            <span class="author-block"><a href="https://stevetsui.github.io/">Sheng Xu</a><sup>2</sup>,</span>
+            <span class="author-block"><a href="https://jimmysuen.github.io">Xiao Sun</a><sup>1</sup>,</span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup> Shanghai Artificial Intelligence Laboratory</span>, 
+            <span class="author-block"><sup>2</sup> Beihang University</span>, 
+            <span class="author-block"><sup>3</sup> The University of Tokyo</span>, 
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2412.20522"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>Supp</span>
+                </a>
+              </span> -->
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/kaikai23/maskgaussian"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+
+  <div class="columns is-centered has-text-centered">
+    <div class="column is-four-fifths">
+      <div class="text-container">
+        <p style="font-size:22px;">
+          TL;DR: We introduce <b>Mask</b>Gaussian, integrating masks into rasterization for full differentiability, and prune Gaussians without compromising reconstruction quality.
+        </p>
+      </div>
+
+      <div class="container">
+          <div class=" has-text-centered">
+              <div class="columns is-centered">
+                  <div class="column">
+                      <div class="content">
+                          <div class="columns is-centered">
+                              <div class="column is-full-width">
+                                  <div id="example1" class="bal-container-small">
+
+                                      <div class="bal-after">
+                                          <img src="./static/images/kitchen_ours_crop.png">
+                                          <div class="bal-afterPosition afterLabel" style="z-index:1;">
+                                            Ours <br>
+                                            PSNR: 31.54 <br>
+                                            # GS (M): 0.51 <br>
+                                            FPS: 435.0
+                                          </div>
+                                      </div>
+
+                                      <div class="bal-before" style="width:96.4968152866242%;">
+                                          <div class="bal-before-inset" style="width: 539px;">
+                                              <img src="./static/images/kitchen_3dgs_crop.png">
+                                              <div class="bal-beforePosition beforeLabel">
+                                                3DGS [Kerbl 2023] <br>
+                                                PSNR: 31.54 <br>
+                                                # GS (M): 1.75 <br>
+                                                FPS: 195.1
+                                              </div>
+                                          </div>
+                                      </div>
+
+                                      <div class="bal-handle" style="left:96.4968152866242%;">
+                                          <span class=" handle-left-arrow"></span>
+                                          <span class="handle-right-arrow"></span>
+                                      </div>
+
+                                  </div>
+
+
+                                  <!-- <div id="example2" class="bal-container-small">
+
+                                      <div class="bal-after">
+                                          <img src="./static/images/drjohnson_lg.png">
+                                          <div class="bal-afterPosition afterLabel" style="z-index:1;">
+                                              LightGaussian [Fan 2023]
+                                          </div>
+                                      </div>
+
+                                      <div class="bal-before" style="width:96.4968152866242%;">
+                                          <div class="bal-before-inset" style="width: 539px;">
+                                              <img src="./static/images/drjohnson_ours.png">
+                                              <div class="bal-beforePosition beforeLabel">
+                                                  PUP 3D-GS (Ours)
+                                              </div>
+                                          </div>
+                                      </div>
+
+                                      <div class="bal-handle" style="left: 50%;">
+                                          <span class=" handle-left-arrow"></span>
+                                          <span class="handle-right-arrow"></span>
+                                      </div>
+
+                                  </div> -->
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="column">
+                      <div class="columns is-centered">
+                          <div class="column content">
+
+                              <div id="example4" class="bal-container-small">
+                                  <div class="bal-after">
+                                      <img src="./static/images/garden_ours_crop_01.png">
+                                      <div class="bal-afterPosition afterLabel" style="z-index:1;">
+                                          Ours <br>
+                                          PSNR: 27.34 <br>
+                                          # GS (M): 2.13 <br>
+                                          FPS: 227.2
+                                      </div>
+                                  </div>
+
+                                  <div class="bal-before" style="width:96.4968152866242%;">
+                                      <div class="bal-before-inset" style="width: 539px;">
+                                          <img src="./static/images/garden_c3dgs_crop_01.png">
+                                          <div class="bal-beforePosition beforeLabel">
+                                            Compact 3DGS [Lee 2024] <br>
+                                            PSNR: 27.06 <br>
+                                            # GS (M): 2.46 <br>
+                                            FPS: 178.4
+                                          </div>
+                                      </div>
+                                  </div>
+
+                                  <div class="bal-handle" style="left:62.10191082802548%;">
+                                      <span class=" handle-left-arrow"></span>
+                                      <span class="handle-right-arrow"></span>
+                                  </div>
+
+                              </div>
+
+                              <!-- <div id="example5" class="bal-container-small">
+                                  <div class="bal-after">
+                                      <img src="./static/images/garden_ours_crop_02.png">
+                                      <div class="bal-afterPosition afterLabel" style="z-index:1;">
+                                          Ours
+                                      </div>
+                                  </div>
+
+                                  <div class="bal-before" style="width:96.4968152866242%;">
+                                      <div class="bal-before-inset" style="width: 539px;">
+                                          <img src="./static/images/garden_c3dgs_crop_02.png">
+                                          <div class="bal-beforePosition beforeLabel">
+                                            Compact 3DGS [Lee 2024]
+                                          </div>
+                                      </div>
+                                  </div>
+
+                                  <div class="bal-handle" style="left:56.77179962894249%;">
+                                      <span class=" handle-left-arrow"></span>
+                                      <span class="handle-right-arrow"></span>
+                                  </div>
+
+                              </div> -->
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div class="text-container">
+        <p style="font-size:22px; width: 95%; margin: auto;">
+          Our method can prune more than <b>60%</b> Gaussians with <b>minimal impact</b> on reconstruction quality, and can especially preserve <b>fine-grained details</b> like the rattan.
+          (The blue points represent Gaussian centers and show the spatial distribution of Gaussians.)
+        </p>  
+      </div>
+    </div>
+  </div>
+
+  <br><br>
+
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="hero-body">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p style="font-size:18px;">
+              While 3D Gaussian Splatting (3DGS) has demonstrated remarkable performance in novel view synthesis and real-time rendering, the high memory consumption due to the use of millions of Gaussians limits its practicality. 
+              To mitigate this issue, improvements have been made by pruning unnecessary Gaussians, either through a hand-crafted criterion or by using learned masks. 
+              However, these methods deterministically remove Gaussians based on a snapshot of the pruning moment, leading to sub-optimized reconstruction performance from a long-term perspective. 
+              To address this issue, we introduce MaskGaussian, which models Gaussians as probabilistic entities rather than permanently removing them, and utilize them according to their probability of existence. 
+              To achieve this, we propose a masked-rasterization technique that enables unused yet probabilistically existing Gaussians to receive gradients, allowing for dynamic assessment of their contribution to the evolving scene and adjustment of their probability of existence. 
+              Hence, the importance of Gaussians iteratively changes and the pruned Gaussians are selected diversely. 
+              Extensive experiments demonstrate the superiority of the proposed method in achieving better rendering quality with fewer Gaussians than previous pruning methods, pruning over 60% of Gaussians on average with only a 0.02 PSNR decline.
+            </p>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div>
+
+
+  <br><br>
+
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <div class="hero-body">
+          <h2 class="title is-3">Method Overview</h2>
+          <img src="./static/images/pipeline.png"> 
+          <div class="content has-text-justified">
+            <p style="margin-top: 30px; font-size:18px;">
+              <b> Illustration of our proposed Octree-GS: </b>  Starting from a sparse point cloud, we construct an octree for the bounded 3D space. 
+              Each octree level provides a set of anchor Gaussians assigned to the corresponding LOD level. 
+              Unlike conventional 3D-GS methods treating all Gaussians equally, our approach involves anchor Gaussians with different LODs. 
+              During novel view rendering, we determine the required LOD level ℓ for each occupied anchor voxel within the octree from the observation center and invoke all anchor Gaussians up to that level for final rendering. 
+              This process, shown in the middle, results in an increased level of detail by gradually fetching anchors from higher LODs in an accumulation manner. 
+              Our model is trained with standard image reconstruction loss and additional regularization loss following the practice of Scaffold-GS.
+            </p>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div>
+
+  <br><br>
+
+  <div class="columns is-centered ">
+    <div class="column is-full-width">
+      <h2 class="title is-3 has-text-centered" style="margin-bottom: 40px">Results</h2>
+    </div>
+  </div>
+
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container" style="text-align:center">
+      <strong><p style="font-size:18px; padding-top: 10px;"> 
+        In real large scenes, <em>Octree-GS</em> can ensure continuous real-time rendering while maintaining fine rendering details. 
+        Compared with current SOTA methods, our method has significant advantages when rendering in the high-altitude views.
+        <br> <br>
+      <div class="video-row">
+        <video class="fixed-size-video-small rounded-corners" poster="" id="rubble1" autoplay controls muted loop playsinline>
+          <source src="./static/images/rubble/scaffold_gs.mp4" type="video/mp4">
+        </video>
+        <div style="padding-right: 10px;"></div>
+        <video class="fixed-size-video-small rounded-corners" poster="" id="rubble2" autoplay controls muted loop playsinline>
+          <source src="./static/images/rubble/octree_gs.mp4" type="video/mp4">
+        </video>
+        <div style="padding-right: 10px;"></div>
+        <video class="fixed-size-video-small rounded-corners" poster="" id="rubble3" autoplay controls muted loop playsinline>
+          <source src="./static/images/rubble/mip_splatting.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="video-row">
+        <div class="fixed-size-video-small rounded-corners" style="padding-right: 20px; margin-top: -10px;">
+          Scaffold-GS 
+        </div>
+        <div class="fixed-size-video-small rounded-corners" style="margin-top: -10px;">
+          Octree-GS 
+        </div>
+        <div class="fixed-size-video-small rounded-corners" style="padding-left: 20px; margin-top: -10px;">
+          Mip-Splatting 
+        </div>
+      </div>
+      <div class="video-row">
+        <video class="fixed-size-video-small rounded-corners" poster="" id="residence1" autoplay controls muted loop playsinline>
+          <source src="./static/images/residence/scaffold_gs.mp4" type="video/mp4">
+        </video>
+        <div style="padding-right: 10px;"></div>
+        <video class="fixed-size-video-small rounded-corners" poster="" id="residence2" autoplay controls muted loop playsinline>
+          <source src="./static/images/residence/octree_gs.mp4" type="video/mp4">
+        </video>
+        <div style="padding-right: 10px;"></div>
+        <video class="fixed-size-video-small rounded-corners" poster="" id="residence3" autoplay controls muted loop playsinline>
+          <source src="./static/images/residence/mip_splatting.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="video-row">
+        <div class="fixed-size-video-small rounded-corners" style="padding-right: 20px; margin-top: -10px; margin-bottom: -10px;">
+          Scaffold-GS 
+        </div>
+        <div class="fixed-size-video-small rounded-corners" style="margin-top: -10px; margin-bottom: -10px;">
+          Octree-GS 
+        </div>
+        <div class="fixed-size-video-small rounded-corners" style="padding-left: 20px; margin-top: -10px; margin-bottom: -10px;">
+          Mip-Splatting 
+        </div>
+      </div>
+    </div>  
+  </div>
+</section>
+
+<section class="section">
+  <div class="hero-body" style="margin-top: -60px;">
+    <div class="container is-max-desktop" style="text-align:left">
+      <h3 class="title is-4">Comparison with SOTA method</h3>
+      <p style="font-size:18px; font-weight: 300;">        
+        Compared to existing baselines, <em>Octree-GS</em> successfully captures very fine details present in the scene, particularly for objects with thin structures such as trees, light-bulbs, decorative texts, etc.
+      </p>
+      <br>
+      <div class="content has-text-centered" style="width: 80%; margin: auto;">
+        <img src="./static/images/main.png"> 
+      </div>
+    </div>
+    <div class="container is-max-desktop" style="text-align:left; margin-top: 30px;">
+      <h3 class="title is-4">Performance at different resolutions</h3>
+      <p style="font-size:18px; font-weight: 300;">        
+        Thanks to our LOD-structured 3D Gaussians design, <em>Octree-GS</em> can adaptively handle the changed footprint size and effectively address the aliasing issues inherent to 3D-GS and Scaffold-GS.
+      </p>
+      <br>
+      <div class="content has-text-centered" style="width: 80%; margin: auto;">
+        <img src="./static/images/multiresolution.png"> 
+      </div>
+    </div>
+    <div class="container is-max-desktop" style="text-align:left; margin-top: 30px;">
+      <h3 class="title is-4">Effectiveness of Progressive Training</h3>
+      <p style="font-size:18px; font-weight: 300;">    
+        Visualization of anchor Gaussians in different LODs (several levels are omitted for visual brevity), displaying both anchor points and splatted 2D Gaussians in each image.
+        Progressive training can guide the coarse-to-fine reconstruction process, avoid overlapping between different LOD levels. This strategy can not only reduce the number of rendered neural Gaussians, but improve the rendering accuracy of coarser LOD levels (e.g. LOD0, LOD1).
+      </p>
+      <br>
+      <div class="content has-text-centered" style="width: 80%; margin: auto; margin-bottom: 30px;">
+        <img src="./static/images/select.png"> 
+      </div>
+      <div class="content has-text-centered">
+        <video class="video" width="100%" id="ablation1" loop="" playsinline="" autoplay="" muted="" src="./static/images/ablation1.mp4" onplay="resizeAndPlay(this)"></video>
+        <canvas class="videoMerge" id="ablation1Merge"></canvas>
+      </div>
+    </div>
+    <div class="container is-max-desktop" style="text-align:left; margin-top: 30px;">
+      <h3 class="title is-4">Effectiveness of LOD Bias</h3>
+      <p style="font-size:18px; font-weight: 300;">    
+        LOD bias is set as a learnable parameters for each anchor Gaussian as a residual to LOD levels. it effectively supplement the high-frequency regions with more consistent details to be rendered during inference process, such as those sharp edges of an object.
+      </p>
+      <br>
+      <div class="content has-text-centered">
+        <video class="video" width="100%" id="ablation2" loop="" playsinline="" autoplay="" muted="" src="./static/images/ablation2.mp4" onplay="resizeAndPlay(this)"></video>
+        <canvas class="videoMerge" id="ablation2Merge"></canvas>
+      </div>
+    </div>
+    <div class="container  is-max-desktop" style="text-align:left; margin-top: 30px;">
+      <h3 class="title is-4">Visualization at different LODs</h3>
+      <p style="font-size:18px; font-weight: 300;">  
+        A clear division of roles is evident between different levels: LOD 0 captures most rough scene contents, and higher LODs gradually pick up the previously missed high-frequency details.
+        The following is a hierarchical visualization of the rendering results on various types of scenes.
+      </p> 
+      <div class="content has-text-centered">
+        <ul class="nav nav-tabs nav-fill nav-justified" id="object-scale-recon">
+            <li class="nav-item">
+              <a class="nav-link active" onclick="objectSceneEvent(0)">Bicycle</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" onclick="objectSceneEvent(1)">Counter</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" onclick="objectSceneEvent(2)">Garden</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" onclick="objectSceneEvent(3)">Stump</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" onclick="objectSceneEvent(4)">Room</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" onclick="objectSceneEvent(5)">Truck</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" onclick="objectSceneEvent(6)">DrJohnson</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" onclick="objectSceneEvent(7)">Playroom</a>
+            </li>
+        </ul>
+        <div class="b-dics" style="font-weight: 600;">
+            <img src="./static/images/levels/bicycle_LOD0.png" alt="LOD0">
+            <img src="./static/images/levels/bicycle_LOD1.png" alt="LOD1">
+            <img src="./static/images/levels/bicycle_LOD2.png" alt="LOD2">
+            <img src="./static/images/levels/bicycle_LOD3.png" alt="LOD3">
+        </div>
+      </div>
+    </div>    
+  </div>
+</section>
+
+<section class="section" style="margin-top: -100px;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <div class="hero-body">
+          <h2 class="title is-3">
+            Real-Time Interactive Viewer
+          </h2>
+          <div class="content has-text-justified">
+            <p style="margin-top: 30px; font-size:18px; font-weight: 300;">
+              Gaussian Viewers for Octree-GS is available now!
+              We provide <strong>pre-built binaries</strong> of Real-Time Viewer for Windows <a href="https://drive.google.com/file/d/12jg6Upko_pAfX3f4jgnb1Q2BhSQDPScE/view?usp=sharing">here</a> and you can test it with examples below.
+              <ul>
+                <li><a href="https://drive.google.com/file/d/1E9HT6qxyAHZFBza5HXEFuBs9Z4DmshI8/view?usp=sharing">bicycle</a></li>
+                <li><a href="https://drive.google.com/file/d/1EGAjFuRtdHE6H1hjP1ndyeciLuWHBE42/view?usp=sharing">bonsai</a></li>
+                <li><a href="https://drive.google.com/file/d/1EdymGxKx7BCIIXyhJCecF0uY5CO2BESG/view?usp=sharing">garden</a></li>
+                <li><a href="https://drive.google.com/file/d/1EkytxUY6ag-mnZYikm6Ma9lZgP5DPT--/view?usp=sharing">room</a></li>
+              </ul>
+            </p>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            We thank the authors of <a href="https://nerfies.github.io/">Nerfies</a> that kindly open sourced the template of this website.
+          </p>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="static/js/script.js"></script>
+  
+<script>
+    new BeforeAfter({
+        id: '#example1'
+    });
+    // new BeforeAfter({
+    //     id: '#example2'
+    // });
+    new BeforeAfter({
+        id: '#example4'
+    });
+    // new BeforeAfter({
+    //     id: '#example5'
+    // });
+
+</script>
+
+</body>
+</html>
