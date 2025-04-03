@@ -193,7 +193,15 @@
     <div class="column is-four-fifths">
       <div class="text-container">
         <p style="font-size:22px;">
-          TL;DR: We introduce <b>MaskGaussian</b>, embeding masks into just 2 lines of CUDA rasterization formulas to make masked-out Gaussian's probability remain trainable, preventing suboptimal pruning decisions from losing details.
+          TL;DR: We introduce <b>MaskGaussian</b>, which probabilistically samples Gaussians and prunes them <b>through both used and masked Gaussians</b>. We embed masks into <b>just 2 lines of CUDA rasterization forward code</b> to make masked-out Gaussian's sampling probability trainable, preventing suboptimal pruning decisions from degenerated optimization state which loses scene details.
+        </p>
+        <p>Core Explanation -- <b>The Problem: Gradient Flow Only for <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> Gaussians</b><br>
+          If a method only allows gradient for <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> Gaussians (active) but <b> blocks gradients for <span style="background-color: gray; color: white; padding: 2px 5px;">mask=0</span> (masked) Gaussians</b>, it creates an <b>irrecoverable pruning trap</b>:
+          <ul>
+            <li> Masked tokens (<span style="background-color: gray; color: white; padding: 2px 5px;">mask=0</span>) cannot signal their potential usefulness (no gradient updates to their logits).</li>
+            <li> The model <b>cannot correct false pruning decisions</b>, leading to progressive information loss.</li>
+            <li> Over time, the pruning policy <b>collapses into a suboptimal state</b> (e.g., pruning tokens that later turn out to be important).</li>
+          </ul>
         </p>
       </div>
 
