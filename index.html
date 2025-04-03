@@ -195,14 +195,14 @@
         <p style="font-size:22px;">
           TL;DR: We introduce <b>MaskGaussian</b>, which probabilistically samples Gaussians and prunes them <b>through both used and masked Gaussians</b>. We embed masks into <b>just 2 lines of CUDA rasterization forward code</b> to make masked-out Gaussian's sampling probability trainable, preventing suboptimal pruning decisions from degenerated optimization state which loses scene details.
         </p>
-        <p style="font-size:22px;">Core Explanation -- <b>The Problem: Gradient Flow Only for</b> <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> <b>Gaussians</b> <br>
+        <!-- <p style="font-size:22px;">Core Explanation -- <b>The Problem: Gradient Flow Only for</b> <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> <b>Gaussians</b> <br>
           If a method only allows gradient for <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> Gaussians (active) but <b> blocks gradients for </b><span style="background-color: gray; color: white; padding: 2px 5px;">mask=0</span> <b>(masked) Gaussians</b>, it creates an <b>irrecoverable pruning trap</b>:
         </p>
           <ul style="font-size:22px;">
             <li> Masked tokens (<span style="background-color: gray; color: white; padding: 2px 5px;">mask=0</span>) cannot signal their potential usefulness (no gradient updates to their logits).</li>
             <li> The model <b>cannot correct false pruning decisions</b>, leading to progressive information loss.</li>
             <li> Over time, the pruning policy <b>collapses into a suboptimal state</b> (e.g., pruning tokens that later turn out to be important).</li>
-          </ul>
+          </ul> -->
         
       </div>
 
@@ -377,6 +377,9 @@
       <div class="column is-full-width">
         <div class="hero-body">
           <h2 class="title is-3">Method Overview</h2>
+          <p style="margin-top: 30px; font-size:18px;">
+            Before April 4th.
+          </p>
           <!-- <img src="./static/images/pipeline.png"> 
           <div class="content has-text-justified">
             <p style="margin-top: 30px; font-size:18px;">
@@ -398,6 +401,9 @@
   <div class="columns is-centered ">
     <div class="column is-full-width">
       <h2 class="title is-3 has-text-centered" style="margin-bottom: 40px">Results</h2>
+      <p style="margin-top: 30px; font-size:18px;">
+        Before April 4th.
+      </p>
     </div>
   </div>
 
