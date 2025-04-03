@@ -193,9 +193,22 @@
     <div class="column is-four-fifths">
       <div class="text-container">
         <p style="font-size:22px;">
-          TL;DR: We introduce <b>Mask</b>Gaussian, integrating masks into rasterization for full differentiability, and prune Gaussians without compromising reconstruction quality.
+          TL;DR: MaskGaussian introduces a **binary mask sampling** pruning method that removes **over 60%** of 3D Gaussian Splatting (3DGS) points **without compromising reconstruction quality**, 
+          reducing memory usage and accelerating both training and rendering—all by modifying **just two lines of CUDA forward code**.
+          
+          
+          
         </p>
       </div>
+      <div class="summary">
+        <div class="title">Key Innovations</div>
+        <div class="content">
+            - **Binary Mask Sampling**: Learns an existence probability for each Gaussian and dynamically determines whether to retain it during rendering.<br>
+            <i class="fas fa-check"></i> **Masked Gaussians Still Receive Gradients**: Even if a Gaussian is masked out, its probability remains trainable, preventing suboptimal pruning decisions from losing details.<br>
+            <i class="fas fa-check-square"></i> **Efficient CUDA Implementation**: Optimizes **two lines of the rasterization formula** to ensure correct rendering while preserving gradient flow.<br>
+            <i class="fas fa-check-circle"></i> Unlike traditional pruning methods, MaskGaussian **does not rely on hand-crafted importance scores** and **avoids irreversible loss**, making it well-suited for both 3DGS training and finetuning.
+        </div>
+    </div>
 
       <div class="container">
           <div class=" has-text-centered">
