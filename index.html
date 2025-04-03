@@ -192,19 +192,10 @@
   <div class="columns is-centered has-text-centered">
     <div class="column is-four-fifths">
       <div class="text-container">
-        <div class="title">TL;DR</div>
         <p style="font-size:22px;">
-          MaskGaussian introduces a <b>binary mask sampling</b> pruning method that removes <b>over 60%</b> of 3D Gaussian Splatting (3DGS) points <b>without compromising reconstruction quality</b>, 
-          reducing memory usage and accelerating both training and rendering—all by modifying <b>just two lines of CUDA forward code</b>.
+          TL;DR: We introduce <b>MaskGaussian</b>, which embeds masking into 2-line CUDA rasterization code to make masked-out Gaussian's probability remain trainable, preventing suboptimal pruning decisions from losing details.
         </p>
       </div>
-      <div class="title">Key Innovations</div>
-      <p style="font-size:22px;">
-          - <b>Binary Mask Sampling</b>: Learns an existence probability for each Gaussian and dynamically determines whether to retain it during rendering.<br>
-          <i class="fas fa-check"></i> <b>Masked Gaussians Still Receive Gradients</b>: Even if a Gaussian is masked out, its probability remains trainable, preventing suboptimal pruning decisions from losing details.<br>
-          <i class="fas fa-check-square"></i> <b>Efficient CUDA Implementation</b>: Optimizes <b>two lines of the rasterization formula</b> to ensure correct rendering while preserving gradient flow.<br>
-          <i class="fas fa-check-circle"></i> Unlike traditional pruning methods, MaskGaussian <b>does not rely on hand-crafted importance scores</b> and <b>avoids irreversible loss</b>, making it well-suited for both 3DGS training and finetuning.
-      </p>
 
       <div class="container">
           <div class=" has-text-centered">
@@ -339,8 +330,8 @@
 
       <div class="text-container">
         <p style="font-size:22px; width: 95%; margin: auto;">
-          Our method can prune more than <b>60%</b> Gaussians with <b>minimal impact</b> on reconstruction quality, and can especially preserve <b>fine-grained details</b> like the rattan.
-          (The blue points represent Gaussian centers and show the spatial distribution of Gaussians.)
+          Left: Compared with 3DGS, MaskGaussian can reduce the number of Gaussian points without compromising the reconstruction quality.
+          Right: MaskGaussian can use fewer Gaussians to better restore the "details" of the vines.
         </p>  
       </div>
     </div>
