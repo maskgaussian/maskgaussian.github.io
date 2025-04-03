@@ -193,7 +193,7 @@
     <div class="column is-four-fifths">
       <div class="text-container">
         <p style="font-size:22px;">
-          TL;DR: We introduce <b>MaskGaussian</b>, which embeds masking into 2-line CUDA rasterization code to make masked-out Gaussian's probability remain trainable, preventing suboptimal pruning decisions from losing details.
+          TL;DR: We introduce <b>MaskGaussian</b>, embeding masks into 2 lines of CUDA rasterization code to make masked-out Gaussian's probability remain trainable, preventing suboptimal pruning decisions from losing details.
         </p>
       </div>
 
@@ -368,7 +368,7 @@
       <div class="column is-full-width">
         <div class="hero-body">
           <h2 class="title is-3">Method Overview</h2>
-          <img src="./static/images/pipeline.png"> 
+          <!-- <img src="./static/images/pipeline.png"> 
           <div class="content has-text-justified">
             <p style="margin-top: 30px; font-size:18px;">
               <b> Illustration of our proposed Octree-GS: </b>  Starting from a sparse point cloud, we construct an octree for the bounded 3D space. 
@@ -378,7 +378,7 @@
               This process, shown in the middle, results in an increased level of detail by gradually fetching anchors from higher LODs in an accumulation manner. 
               Our model is trained with standard image reconstruction loss and additional regularization loss following the practice of Scaffold-GS.
             </p>
-          </div>
+          </div> -->
         </div>  
       </div>
     </div>
@@ -394,7 +394,7 @@
 
 </section>
 
-<section class="hero is-light is-small">
+<!-- <section class="hero is-light is-small">
   <div class="hero-body">
     <div class="container" style="text-align:center">
       <strong><p style="font-size:18px; padding-top: 10px;"> 
@@ -543,33 +543,8 @@
       </div>
     </div>    
   </div>
-</section>
+</section> -->
 
-<section class="section" style="margin-top: -100px;">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-full-width">
-        <div class="hero-body">
-          <h2 class="title is-3">
-            Real-Time Interactive Viewer
-          </h2>
-          <div class="content has-text-justified">
-            <p style="margin-top: 30px; font-size:18px; font-weight: 300;">
-              Gaussian Viewers for Octree-GS is available now!
-              We provide <strong>pre-built binaries</strong> of Real-Time Viewer for Windows <a href="https://drive.google.com/file/d/12jg6Upko_pAfX3f4jgnb1Q2BhSQDPScE/view?usp=sharing">here</a> and you can test it with examples below.
-              <ul>
-                <li><a href="https://drive.google.com/file/d/1E9HT6qxyAHZFBza5HXEFuBs9Z4DmshI8/view?usp=sharing">bicycle</a></li>
-                <li><a href="https://drive.google.com/file/d/1EGAjFuRtdHE6H1hjP1ndyeciLuWHBE42/view?usp=sharing">bonsai</a></li>
-                <li><a href="https://drive.google.com/file/d/1EdymGxKx7BCIIXyhJCecF0uY5CO2BESG/view?usp=sharing">garden</a></li>
-                <li><a href="https://drive.google.com/file/d/1EkytxUY6ag-mnZYikm6Ma9lZgP5DPT--/view?usp=sharing">room</a></li>
-              </ul>
-            </p>
-          </div>
-        </div>  
-      </div>
-    </div>
-  </div>
-</section>
 
 <footer class="footer">
   <div class="container">
