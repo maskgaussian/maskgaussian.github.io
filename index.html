@@ -193,7 +193,7 @@
     <div class="column is-four-fifths">
       <div class="text-container">
         <p style="font-size:22px;">
-          TL;DR: We introduce <b>MaskGaussian</b>, which probabilistically samples Gaussians and prunes them <b>through both used and masked Gaussians</b>. We embed masks into <b>just 2 lines of CUDA rasterization forward code</b> to make masked-out Gaussian's sampling probability trainable, preventing suboptimal pruning decisions from degenerated optimization state which loses scene details.
+          TL;DR: We introduce <b>MaskGaussian</b>, which probabilistically samples Gaussians and prunes them <b>through gradients from both used and masked Gaussians</b>. We embed masks into <b>just 2 lines of CUDA forward code</b> to make masked-out Gaussian's sampling probability trainable, preventing suboptimal pruning decisions from degenerated optimization state which loses scene details.
         </p>
         <!-- <p style="font-size:22px;">Core Explanation -- <b>The Problem: Gradient Flow Only for</b> <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> <b>Gaussians</b> <br>
           If a method only allows gradient for <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> Gaussians (active) but <b> blocks gradients for </b><span style="background-color: gray; color: white; padding: 2px 5px;">mask=0</span> <b>(masked) Gaussians</b>, it creates an <b>irrecoverable pruning trap</b>:
@@ -339,8 +339,8 @@
 
       <div class="text-container">
         <p style="font-size:22px; width: 95%; margin: auto;">
-          Left: Compared with 3DGS, MaskGaussian can reduce the number of Gaussian points without compromising the reconstruction quality.
-          Right: MaskGaussian can use fewer Gaussians to better restore the "details" of the vines.
+          <b>Left</b>: Compared with 3DGS, MaskGaussian can reduce the number of Gaussian points without compromising the reconstruction quality.
+          <b>Right</b>: MaskGaussian can use fewer Gaussians to better restore the "details" of the vines.
         </p>  
       </div>
     </div>
@@ -377,20 +377,16 @@
       <div class="column is-full-width">
         <div class="hero-body">
           <h2 class="title is-3">Method Overview</h2>
-          <p style="margin-top: 30px; font-size:18px;">
-            Before April 4th.
-          </p>
-          <!-- <img src="./static/images/pipeline.png"> 
+          <img src="./static/images/figure1.png">
           <div class="content has-text-justified">
             <p style="margin-top: 30px; font-size:18px;">
-              <b> Illustration of our proposed Octree-GS: </b>  Starting from a sparse point cloud, we construct an octree for the bounded 3D space. 
-              Each octree level provides a set of anchor Gaussians assigned to the corresponding LOD level. 
-              Unlike conventional 3D-GS methods treating all Gaussians equally, our approach involves anchor Gaussians with different LODs. 
-              During novel view rendering, we determine the required LOD level ℓ for each occupied anchor voxel within the octree from the observation center and invoke all anchor Gaussians up to that level for final rendering. 
-              This process, shown in the middle, results in an increased level of detail by gradually fetching anchors from higher LODs in an accumulation manner. 
-              Our model is trained with standard image reconstruction loss and additional regularization loss following the practice of Scaffold-GS.
+              <b> Overview of MaskGaussian: </b>  We illustrate our pipeline with five Gaussians, G1 through G5, where G2 and G5 are not sampled and masked.
+              First, all Gaussians are splatted in the standard manner, and differentiable masks are sampled from their existence distributions.
+              For each query pixel, a splat Gi has αi computed from normal attributes (center, scale, rotation). Splats with zero αi are filtered out, and the remaining splats and their masks are passed into the masked-rasterization.
+              We apply the masks in two places: the transmittance evolution for Ti and the color rendering for ci.
+              A masked splat Gi (e.g., i=2 in this figure) does not receive a gradient for αi, and thus does not update its normal attributes, but it receives a gradient for mask mi and updates its existence probability.
             </p>
-          </div> -->
+          </div>
         </div>  
       </div>
     </div>
@@ -400,10 +396,9 @@
 
   <div class="columns is-centered has-text-centered">
     <div class="column is-full-width">
-      <h2 class="title is-3 has-text-centered" style="margin-bottom: 40px">Results</h2>
-      <p style="margin-top: 30px; font-size:18px;">
-        Before April 4th.
-      </p>
+      <div class="hero-body">
+        <h2 class="title is-3 has-text-centered" style="margin-bottom: 40px">Results</h2>
+      </div>
     </div>
   </div>
 
@@ -466,99 +461,58 @@
       </div>
     </div>  
   </div>
-</section>
+</section> -->
 
 <section class="section">
-  <div class="hero-body" style="margin-top: -60px;">
+  <div class="hero-body" style="margin-top: -160px;">
     <div class="container is-max-desktop" style="text-align:left">
-      <h3 class="title is-4">Comparison with SOTA method</h3>
+      <p style="font-size:18px; font-weight: 300;">
+        Main results on Mip-Nerf360, Tanks & Temples, and Deep Blending.
+      </p>
+      <div class="content has-text-centered" style="width: 90%; margin: auto; margin-bottom: 30px;">
+        <img src="./static/images/main_results.png"> 
+      </div>
+    </div>
+    <div class="container is-max-desktop" style="text-align:left">
+      <h3 class="title is-4">Training Progress Comparison</h3>
       <p style="font-size:18px; font-weight: 300;">        
-        Compared to existing baselines, <em>Octree-GS</em> successfully captures very fine details present in the scene, particularly for objects with thin structures such as trees, light-bulbs, decorative texts, etc.
+        Compared to Compact3DGS, <em>MaskGaussian</em> progressively prunes more Gaussians, leading to faster training and lower GPU memory requirements, while retainning higher reconstruction quality.
       </p>
       <br>
-      <div class="content has-text-centered" style="width: 80%; margin: auto;">
-        <img src="./static/images/main.png"> 
+      <div class="content has-text-centered" style="width: 90%; margin: auto;">
+        <img src="./static/images/training_progress.png"> 
       </div>
-    </div>
-    <div class="container is-max-desktop" style="text-align:left; margin-top: 30px;">
-      <h3 class="title is-4">Performance at different resolutions</h3>
       <p style="font-size:18px; font-weight: 300;">        
-        Thanks to our LOD-structured 3D Gaussians design, <em>Octree-GS</em> can adaptively handle the changed footprint size and effectively address the aliasing issues inherent to 3D-GS and Scaffold-GS.
-      </p>
-      <br>
-      <div class="content has-text-centered" style="width: 80%; margin: auto;">
-        <img src="./static/images/multiresolution.png"> 
-      </div>
-    </div>
-    <div class="container is-max-desktop" style="text-align:left; margin-top: 30px;">
-      <h3 class="title is-4">Effectiveness of Progressive Training</h3>
-      <p style="font-size:18px; font-weight: 300;">    
-        Visualization of anchor Gaussians in different LODs (several levels are omitted for visual brevity), displaying both anchor points and splatted 2D Gaussians in each image.
-        Progressive training can guide the coarse-to-fine reconstruction process, avoid overlapping between different LOD levels. This strategy can not only reduce the number of rendered neural Gaussians, but improve the rendering accuracy of coarser LOD levels (e.g. LOD0, LOD1).
-      </p>
-      <br>
-      <div class="content has-text-centered" style="width: 80%; margin: auto; margin-bottom: 30px;">
-        <img src="./static/images/select.png"> 
-      </div>
-      <div class="content has-text-centered">
-        <video class="video" width="100%" id="ablation1" loop="" playsinline="" autoplay="" muted="" src="./static/images/ablation1.mp4" onplay="resizeAndPlay(this)"></video>
-        <canvas class="videoMerge" id="ablation1Merge"></canvas>
-      </div>
-    </div>
-    <div class="container is-max-desktop" style="text-align:left; margin-top: 30px;">
-      <h3 class="title is-4">Effectiveness of LOD Bias</h3>
-      <p style="font-size:18px; font-weight: 300;">    
-        LOD bias is set as a learnable parameters for each anchor Gaussian as a residual to LOD levels. it effectively supplement the high-frequency regions with more consistent details to be rendered during inference process, such as those sharp edges of an object.
-      </p>
-      <br>
-      <div class="content has-text-centered">
-        <video class="video" width="100%" id="ablation2" loop="" playsinline="" autoplay="" muted="" src="./static/images/ablation2.mp4" onplay="resizeAndPlay(this)"></video>
-        <canvas class="videoMerge" id="ablation2Merge"></canvas>
-      </div>
-    </div>
-    <div class="container  is-max-desktop" style="text-align:left; margin-top: 30px;">
-      <h3 class="title is-4">Visualization at different LODs</h3>
-      <p style="font-size:18px; font-weight: 300;">  
-        A clear division of roles is evident between different levels: LOD 0 captures most rough scene contents, and higher LODs gradually pick up the previously missed high-frequency details.
-        The following is a hierarchical visualization of the rendering results on various types of scenes.
-      </p> 
-      <div class="content has-text-centered">
-        <ul class="nav nav-tabs nav-fill nav-justified" id="object-scale-recon">
-            <li class="nav-item">
-              <a class="nav-link active" onclick="objectSceneEvent(0)">Bicycle</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="objectSceneEvent(1)">Counter</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="objectSceneEvent(2)">Garden</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="objectSceneEvent(3)">Stump</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="objectSceneEvent(4)">Room</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="objectSceneEvent(5)">Truck</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="objectSceneEvent(6)">DrJohnson</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="objectSceneEvent(7)">Playroom</a>
-            </li>
-        </ul>
-        <div class="b-dics" style="font-weight: 600;">
-            <img src="./static/images/levels/bicycle_LOD0.png" alt="LOD0">
-            <img src="./static/images/levels/bicycle_LOD1.png" alt="LOD1">
-            <img src="./static/images/levels/bicycle_LOD2.png" alt="LOD2">
-            <img src="./static/images/levels/bicycle_LOD3.png" alt="LOD3">
+        Peak GPU Memory Cost:
+        <div class="content" style="width: 50%; margin: auto;">
+          <img src="./static/images/GPU.png"> 
         </div>
+      </p>
+    </div>
+    <div class="container is-max-desktop" style="text-align:left; margin-top: 30px;">
+      <h3 class="title is-4">Also Supports Finetuning</h3>
+      <p style="font-size:18px; font-weight: 300;">        
+        Although not specifically designed for post-training, <em>MaskGaussian</em> can be used for finetuning an already existing Gaussian scene.
+        You can use it as a drop-in replacement for LightGaussian — you can use it with exactly the same commands, no modifications needed. Try it out with the <a href="https://github.com/kaikai23/MaskGaussian#post-training-and-evaluation">code</a> here!
+      </p>
+      <br>
+      <div class="content has-text-centered" style="width: 90%; margin: auto;">
+        <img src="./static/images/post_training.png"> 
       </div>
-    </div>    
+    </div>
+    <div class="container is-max-desktop" style="text-align:left; margin-top: 30px;">
+      <h3 class="title is-4">Can be seamlessly integrated into SOTA training pipelines</h3>
+      <p style="font-size:18px; font-weight: 300;">    
+        Our method can in theory prune Gaussians for any SOTA 3DGS-pipeline. 
+        For example, we add MaskGaussian on Taming-3DGS and show that it has better efficiency than directly controlling its targeting budget.
+      </p>
+      <br>
+      <div class="content has-text-centered" style="width: 50%; margin: auto; margin-bottom: 30px;">
+        <img src="./static/images/integration.png"> 
+      </div>
+    </div>
   </div>
-</section> -->
+</section>
 
 
 <footer class="footer">
