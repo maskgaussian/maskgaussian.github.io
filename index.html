@@ -136,16 +136,20 @@
           <h1 class="title is-2 publication-title">MaskGaussian: Adaptive 3D Gaussian Representation from Probabilistic Masks</h1>
           <div class="is-size-5 publication-authors">
             <span class="author-block"><a href="https://github.com/kaikai23">Yifei Liu</a><sup>1,2</sup>,</span>
-            <span class="author-block"><a href="https://zzh-tech.github.io">Zhihang Zhong</a><sup>1</sup>,</span>
+            <span class="author-block"><a href="https://zzh-tech.github.io">Zhihang Zhong</a><sup>1,†</sup>,</span>
             <span class="author-block"><a href="https://github.com/Yifever20002">Yifan Zhan</a><sup>1,3</sup>,</span>
             <span class="author-block"><a href="https://stevetsui.github.io/">Sheng Xu</a><sup>2</sup>,</span>
-            <span class="author-block"><a href="https://jimmysuen.github.io">Xiao Sun</a><sup>1</sup>,</span>
+            <span class="author-block"><a href="https://jimmysuen.github.io">Xiao Sun</a><sup>1,†</sup></span>
           </div>
 
           <div class="is-size-5 publication-authors">
             <span class="author-block"><sup>1</sup> Shanghai Artificial Intelligence Laboratory</span>, 
             <span class="author-block"><sup>2</sup> Beihang University</span>, 
-            <span class="author-block"><sup>3</sup> The University of Tokyo</span>, 
+            <span class="author-block"><sup>3</sup> The University of Tokyo</span>
+          </div>
+
+          <div class="is-size-6 publication-authors">
+            <span class="author-block">† Corresponding Authors</span>
           </div>
 
           <div class="column has-text-centered">
@@ -195,14 +199,6 @@
         <p style="font-size:22px;">
           TL;DR: We introduce <b>MaskGaussian</b>, which probabilistically samples Gaussians and prunes them <b>through gradients from both used and masked Gaussians</b>. We embed masks into <b>just 2 lines of CUDA forward code</b> to make masked-out Gaussian's sampling probability trainable, preventing suboptimal pruning decisions from degenerated optimization state which loses scene details.
         </p>
-        <!-- <p style="font-size:22px;">Core Explanation -- <b>The Problem: Gradient Flow Only for</b> <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> <b>Gaussians</b> <br>
-          If a method only allows gradient for <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> Gaussians (active) but <b> blocks gradients for </b><span style="background-color: gray; color: white; padding: 2px 5px;">mask=0</span> <b>(masked) Gaussians</b>, it creates an <b>irrecoverable pruning trap</b>:
-        </p>
-          <ul style="font-size:22px;">
-            <li> Masked tokens (<span style="background-color: gray; color: white; padding: 2px 5px;">mask=0</span>) cannot signal their potential usefulness (no gradient updates to their logits).</li>
-            <li> The model <b>cannot correct false pruning decisions</b>, leading to progressive information loss.</li>
-            <li> Over time, the pruning policy <b>collapses into a suboptimal state</b> (e.g., pruning tokens that later turn out to be important).</li>
-          </ul> -->
         
       </div>
 
@@ -348,6 +344,27 @@
 
   <br><br>
 
+  <!-- <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <div class="hero-body">
+          <h2 class="title is-3">Core Explanation</h2>
+          <div class="content has-text-justified">
+            <p style="font-size:18px;">
+              <b>The Problem: Gradient Flow Only for</b> <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> <b>Gaussians</b> <br>
+    If a method only allows gradient for <span style="background-color: gray; color: white; padding: 2px 5px;">mask=1</span> Gaussians (active) but <b> blocks gradients for </b><span style="background-color: gray; color: white; padding: 2px 5px;">mask=0</span> <b>(masked) Gaussians</b>, it creates an <b>irrecoverable pruning trap</b>:
+            </p>
+            <ul style="font-size:18px;">
+              <li> Masked tokens (<span style="background-color: gray; color: white; padding: 2px 5px;">mask=0</span>) cannot signal their potential usefulness (no gradient updates to their logits).</li>
+              <li> The model <b>cannot correct false pruning decisions</b>, leading to progressive information loss.</li>
+              <li> Over time, the pruning policy <b>collapses into a suboptimal state</b> (e.g., pruning tokens that later turn out to be important).</li>
+            </ul>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div> -->
+
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
@@ -404,69 +421,13 @@
 
 </section>
 
-<!-- <section class="hero is-light is-small">
-  <div class="hero-body">
-    <div class="container" style="text-align:center">
-      <strong><p style="font-size:18px; padding-top: 10px;"> 
-        In real large scenes, <em>Octree-GS</em> can ensure continuous real-time rendering while maintaining fine rendering details. 
-        Compared with current SOTA methods, our method has significant advantages when rendering in the high-altitude views.
-        <br> <br>
-      <div class="video-row">
-        <video class="fixed-size-video-small rounded-corners" poster="" id="rubble1" autoplay controls muted loop playsinline>
-          <source src="./static/images/rubble/scaffold_gs.mp4" type="video/mp4">
-        </video>
-        <div style="padding-right: 10px;"></div>
-        <video class="fixed-size-video-small rounded-corners" poster="" id="rubble2" autoplay controls muted loop playsinline>
-          <source src="./static/images/rubble/octree_gs.mp4" type="video/mp4">
-        </video>
-        <div style="padding-right: 10px;"></div>
-        <video class="fixed-size-video-small rounded-corners" poster="" id="rubble3" autoplay controls muted loop playsinline>
-          <source src="./static/images/rubble/mip_splatting.mp4" type="video/mp4">
-        </video>
-      </div>
-      <div class="video-row">
-        <div class="fixed-size-video-small rounded-corners" style="padding-right: 20px; margin-top: -10px;">
-          Scaffold-GS 
-        </div>
-        <div class="fixed-size-video-small rounded-corners" style="margin-top: -10px;">
-          Octree-GS 
-        </div>
-        <div class="fixed-size-video-small rounded-corners" style="padding-left: 20px; margin-top: -10px;">
-          Mip-Splatting 
-        </div>
-      </div>
-      <div class="video-row">
-        <video class="fixed-size-video-small rounded-corners" poster="" id="residence1" autoplay controls muted loop playsinline>
-          <source src="./static/images/residence/scaffold_gs.mp4" type="video/mp4">
-        </video>
-        <div style="padding-right: 10px;"></div>
-        <video class="fixed-size-video-small rounded-corners" poster="" id="residence2" autoplay controls muted loop playsinline>
-          <source src="./static/images/residence/octree_gs.mp4" type="video/mp4">
-        </video>
-        <div style="padding-right: 10px;"></div>
-        <video class="fixed-size-video-small rounded-corners" poster="" id="residence3" autoplay controls muted loop playsinline>
-          <source src="./static/images/residence/mip_splatting.mp4" type="video/mp4">
-        </video>
-      </div>
-      <div class="video-row">
-        <div class="fixed-size-video-small rounded-corners" style="padding-right: 20px; margin-top: -10px; margin-bottom: -10px;">
-          Scaffold-GS 
-        </div>
-        <div class="fixed-size-video-small rounded-corners" style="margin-top: -10px; margin-bottom: -10px;">
-          Octree-GS 
-        </div>
-        <div class="fixed-size-video-small rounded-corners" style="padding-left: 20px; margin-top: -10px; margin-bottom: -10px;">
-          Mip-Splatting 
-        </div>
-      </div>
-    </div>  
-  </div>
-</section> -->
-
 <section class="section">
   <div class="hero-body" style="margin-top: -160px;">
     <div class="container is-max-desktop" style="text-align:left">
-      <h3 class="title is-4">Main results on Mip-Nerf360, Tanks & Temples, and Deep Blending.</h3>
+      <h3 class="title is-4">Main Results</h3>
+      <p style="font-size:18px; font-weight: 300;">        
+        On Mip-Nerf360, Tanks & Temples, and Deep Blending.
+      </p>
       <div class="content has-text-centered" style="width: 90%; margin: auto; margin-bottom: 30px;">
         <img src="./static/images/main_results.png"> 
       </div>
